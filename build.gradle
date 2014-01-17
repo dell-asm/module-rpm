@@ -18,6 +18,8 @@ buildscript {
         rpm_packageName = env.RPM_PACKAGENAME ? env.RPM_PACKAGENAME : 'Dell-ASM-puppet-module-'
         puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'puppet'
         moduleName = env.MODULE_NAME ? env.MODULE_NAME : 'puppetlabs-xinetd'
+        moduleFolder = env.MODULE_FOLDER ? env.MODULE_FOLDER : 'xinetd'
+        gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : 'puppetlabs-xinetd'
         moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
@@ -57,7 +59,7 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
 
     org.freecompany.redline.Builder rpmBuilder = new org.freecompany.redline.Builder()
     
-    def rpmFileTree = fileTree('../modules') {
+    def rpmFileTree = fileTree("../modules/$gitFolder") {
            include '**'
            exclude '.git*'
            exclude { element ->
@@ -81,11 +83,11 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
         if (Files.readAttributes(visitedFile.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isSymbolicLink()) {
             def linktarget = Files.readSymbolicLink(visitedFile.toPath())
             logger.debug( "symbolic link = ${visitedFile.getPath()} -> ${linktarget}")
-            rpmBuilder.addLink("${puppetModulesFolder}/${element.path}", linktarget.toString())
+            rpmBuilder.addLink("${puppetModulesFolder}/${moduleFolder}/${element.path}", linktarget.toString())
         } else if (element.isDirectory()) {
-            rpmBuilder.addDirectory("${puppetModulesFolder}/${element.path}", 0755 , Directive.NONE, project.puppet_user,project.puppet_user) 
+            rpmBuilder.addDirectory("${puppetModulesFolder}/${moduleFolder}/${element.path}", 0755 , Directive.NONE, project.puppet_user,project.puppet_user) 
         } else {
-            rpmBuilder.addFile("${puppetModulesFolder}/${element.path}",element.file, 0644 , Directive.NONE, project.puppet_user,project.puppet_user)
+            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0644 , Directive.NONE, project.puppet_user,project.puppet_user)
         }
     }    
 
