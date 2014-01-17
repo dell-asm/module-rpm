@@ -19,7 +19,7 @@ buildscript {
         puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'puppet'
         moduleName = env.MODULE_NAME ? env.MODULE_NAME : 'puppetlabs-xinetd'
         moduleFolder = env.MODULE_FOLDER ? env.MODULE_FOLDER : 'xinetd'
-        gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : 'puppetlabs-xinetd'
+        gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : moduleName
         moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
