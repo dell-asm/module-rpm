@@ -80,6 +80,7 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
 
     rpmFileTree.visit { element->
         def visitedFile = element.file
+		logger.debug( "File name and Path = ${element.path}  ${element.file}")
         if (Files.readAttributes(visitedFile.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isSymbolicLink()) {
             def linktarget = Files.readSymbolicLink(visitedFile.toPath())
             logger.debug( "symbolic link = ${visitedFile.getPath()} -> ${linktarget}")
