@@ -80,7 +80,7 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
 
     rpmFileTree.visit { element->
         def visitedFile = element.file
-		logger.debug( "File name and Path = ${element.path}  ${element.file}")
+		logger.debug( "File name and Path = ${element.path}  ${element.file.name}")
         if (Files.readAttributes(visitedFile.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isSymbolicLink()) {
             def linktarget = Files.readSymbolicLink(visitedFile.toPath())
             logger.debug( "symbolic link = ${visitedFile.getPath()} -> ${linktarget}")
@@ -88,8 +88,13 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
         } else if (element.isDirectory()) {
             rpmBuilder.addDirectory("${puppetModulesFolder}/${moduleFolder}/${element.path}", 0755 , Directive.NONE, project.puppet_user,project.puppet_user) 
         } else {
-            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0644 , Directive.NONE, project.puppet_user,project.puppet_user)
-        }
+					if( 'lib/puppet/util/network_device/equallogic/member'== element.path  || 'lib/puppet/util/network_device/equallogic/pool' == element.path 
+							|| 'lib/puppet/util/network_device/equallogic/volume' == element.path ){
+						rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0755 , Directive.NONE, project.puppet_user,project.puppet_user)
+					} else {
+							rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0644 , Directive.NONE, project.puppet_user,project.puppet_user)
+							}
+			}
     }    
 
     rpmBuilder.setPackage("${project.rpm_packageName}${moduleName}",moduleVersion,project.rpm_release)
