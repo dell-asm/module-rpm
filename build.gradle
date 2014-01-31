@@ -20,6 +20,7 @@ buildscript {
         moduleName = env.MODULE_NAME ? env.MODULE_NAME : 'puppetlabs-xinetd'
         moduleFolder = env.MODULE_FOLDER ? env.MODULE_FOLDER : 'xinetd'
         gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : moduleName
+        gitRepo = env.REPONAME ? env.REPONAME : gitFolder
         moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
@@ -59,7 +60,7 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
 
     org.freecompany.redline.Builder rpmBuilder = new org.freecompany.redline.Builder()
     
-    def rpmFileTree = fileTree("../modules/$gitFolder") {
+    def rpmFileTree = fileTree("../modules/$gitRepo") {
            include '**'
            exclude '.git*'
            exclude { element ->
