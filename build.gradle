@@ -110,5 +110,9 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
     rpmBuilder.setVendor(project.rpm_vendor)
     rpmBuilder.setPackager(project.rpm_packager)
     rpmBuilder.setUrl(project.rpm_url)
+   // If we are building the dell-bmc module, we need to install the ipmiflash rpm
+    if (moduleName == 'dell-bmc') {
+      rpmBuilder.addDependencyMore('dell-pec-ipmiflash','2013.02.11')
+    }
     println rpmBuilder.build(rpmDestinationDirectory)
 }
