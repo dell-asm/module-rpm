@@ -114,5 +114,11 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
     if (moduleName == 'dell-bmc') {
       rpmBuilder.addDependencyMore('dell-pec-ipmiflash','2013.02.11')
     }
+    if (moduleName == 'dell-compellent') {
+      rpmBuilder.addDirectory("/opt/Dell/ASM/logs/compellent", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
+    }
+    if (moduleName == 'dell-equallogic') {
+      rpmBuilder.addDirectory("/var/lib/net-snmp/mib_indexes", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
+    }
     println rpmBuilder.build(rpmDestinationDirectory)
 }
