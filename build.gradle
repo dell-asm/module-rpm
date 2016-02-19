@@ -18,7 +18,7 @@ buildscript {
         rpm_packageName = env.RPM_PACKAGENAME ? env.RPM_PACKAGENAME : 'Dell-ASM-puppet-module-'
         puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'puppet'
         modules = env.MODULES
-        moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
+        moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '10.0.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
         rpm_summary     = env.RPM_SUMMARY     ? env.RPM_SUMMARY     : 'Deprecated Puppet module packaged for consumption by Dell Active Systems Manager.'
