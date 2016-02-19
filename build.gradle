@@ -21,7 +21,7 @@ buildscript {
         moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
-        rpm_summary     = env.RPM_SUMMARY     ? env.RPM_SUMMARY     : 'Puppet module packaged for consumption by Dell Active Systems Manager.'
+        rpm_summary     = env.RPM_SUMMARY     ? env.RPM_SUMMARY     : 'Deprecated Puppet module packaged for consumption by Dell Active Systems Manager.'
         rpm_vendor      = env.RPM_VENDOR      ? env.RPM_VENDOR      : 'Dell Inc.'
         rpm_license     = env.RPM_LICENSE     ? env.RPM_LICENSE     : 'ASL 2.0'
         rpm_packager    = env.RPM_PACKAGER    ? env.RPM_PACKAGER    : 'canova'
