@@ -17,16 +17,12 @@ buildscript {
         USE_LOCAL_REPO = hasProperty('USE_LOCAL_REPO') ? USE_LOCAL_REPO       : 'false'
         rpm_packageName = env.RPM_PACKAGENAME ? env.RPM_PACKAGENAME : 'Dell-ASM-puppet-module-'
         puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'puppet'
-        moduleName = env.MODULE_NAME ? env.MODULE_NAME : 'puppetlabs-xinetd'
-        moduleFolder = env.MODULE_FOLDER ? env.MODULE_FOLDER : 'xinetd'
-        gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : moduleName
-        gitRepo = env.REPONAME ? env.REPONAME : gitFolder
+        modules = env.MODULES
         moduleVersion = env.MODULE_VERSION ? env.MODULE_VERSION : '1.2.0'
 
         rpm_description = env.RPM_DESCRIPTION ? env.RPM_DESCRIPTION : 'Puppet module packaged for consumption by Dell ASM'
         rpm_summary     = env.RPM_SUMMARY     ? env.RPM_SUMMARY     : 'Puppet module packaged for consumption by Dell Active Systems Manager.'
         rpm_vendor      = env.RPM_VENDOR      ? env.RPM_VENDOR      : 'Dell Inc.'
-        rpm_url         = env.RPM_URL         ? env.RPM_URL         : 'http://www.dell.com'
         rpm_license     = env.RPM_LICENSE     ? env.RPM_LICENSE     : 'ASL 2.0'
         rpm_packager    = env.RPM_PACKAGER    ? env.RPM_PACKAGER    : 'canova'
         rpm_release     = env.RPM_RELEASE     ? env.RPM_RELEASE     : buildNumber
@@ -47,78 +43,40 @@ task clean (type:Delete) {
 }
 
 task rpm() << {
-    buildModuleRpm(project.moduleName,project.moduleVersion)
+    buildModuleRpms(project.modules,project.moduleVersion)
 }
 
 import org.freecompany.redline.payload.*
 import org.freecompany.redline.header.*
-def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs/puppet/modules',rpmDestinationDirectory=(new File("${buildDir}/distributions"))) {
+def buildModuleRpms(modules,moduleVersion,puppetModulesFolder='/etc/puppetlabs/puppet/modules',rpmDestinationDirectory=(new File("${buildDir}/distributions"))) {
 
     if (! rpmDestinationDirectory.isDirectory()) {
         rpmDestinationDirectory.mkdirs()
     }
 
-    org.freecompany.redline.Builder rpmBuilder = new org.freecompany.redline.Builder()
+    def moduleList = modules.split(",")
 
-    def rpmFileTree = fileTree("../modules/$gitRepo") {
-           include '**'
-           exclude '.git*'
-           exclude { element ->
-              // check if parent is link. if so, exclude. otherwise, gradle will recurse until it fails
-              boolean elementParentIsSymbolicLink = false
-              if ( null != element.file.parent)
-                 elementParentIsSymbolicLink = Files.readAttributes(element.file.parentFile.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isSymbolicLink()
+    for (String module : moduleList) {
 
-              if (elementParentIsSymbolicLink)
-              {
-                  logger.debug("excluded ${element.file} because parent is symbolic link")
-                  logger.debug("parent is ${element.file.parentFile.toPath()}")
-              }
+        def rpmUrl = "https://gitub.com/dell-asm/${module}"
 
-              elementParentIsSymbolicLink
-           }
-       }
+        org.freecompany.redline.Builder rpmBuilder = new org.freecompany.redline.Builder()
 
-    rpmFileTree.visit { element->
-        def visitedFile = element.file
-		logger.debug( "File name and Path = ${element.path}  ${element.file.name}")
-        if (Files.readAttributes(visitedFile.toPath(), BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS).isSymbolicLink()) {
-            def linktarget = Files.readSymbolicLink(visitedFile.toPath())
-            logger.debug( "symbolic link = ${visitedFile.getPath()} -> ${linktarget}")
-            rpmBuilder.addLink("${puppetModulesFolder}/${moduleFolder}/${element.path}", linktarget.toString())
-        } else if (element.isDirectory()) {
-            rpmBuilder.addDirectory("${puppetModulesFolder}/${moduleFolder}/${element.path}", 0755 , Directive.NONE, project.puppet_user,project.puppet_user)
-        } else if( 'files/member'== element.path  || 'files/pool' == element.path
-							|| 'files/volume' == element.path ){
-			rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0755 , Directive.NONE, project.puppet_user,project.puppet_user)
-		} else if ( null != visitedFile.getParentFile() && 'bin'==visitedFile.getParentFile().getName() ) {
-			rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0755 , Directive.NONE, project.puppet_user,project.puppet_user)
-		} else {
-			rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0644 , Directive.NONE, project.puppet_user,project.puppet_user)
-		}
+        rpmBuilder.addDirectory("${puppetModulesFolder}", 0755, Directive.NONE, project.puppet_user, project.puppet_user)
+
+        rpmBuilder.setPackage("${project.rpm_packageName}${module}", moduleVersion, project.rpm_release)
+        rpmBuilder.setType(RpmType.BINARY)
+        rpmBuilder.setPlatform(Architecture.NOARCH, 'LINUX')
+        rpmBuilder.setSummary(project.rpm_summary)
+        rpmBuilder.setDescription(project.rpm_description)
+        rpmBuilder.setBuildHost('localhost')
+        rpmBuilder.setLicense(project.rpm_license)
+        rpmBuilder.setGroup('Enterprise Systems Management')
+        rpmBuilder.setDistribution('')
+        rpmBuilder.setVendor(project.rpm_vendor)
+        rpmBuilder.setPackager(project.rpm_packager)
+        rpmBuilder.setUrl(rpmUrl)
+
+        println rpmBuilder.build(rpmDestinationDirectory)
     }
-
-    rpmBuilder.setPackage("${project.rpm_packageName}${moduleName}",moduleVersion,project.rpm_release)
-    rpmBuilder.setType(RpmType.BINARY)
-    rpmBuilder.setPlatform(Architecture.NOARCH,'LINUX')
-    rpmBuilder.setSummary(project.rpm_summary)
-    rpmBuilder.setDescription(project.rpm_description)
-    rpmBuilder.setBuildHost('localhost')
-    rpmBuilder.setLicense(project.rpm_license)
-    rpmBuilder.setGroup('Enterprise Systems Management')
-    rpmBuilder.setDistribution('')
-    rpmBuilder.setVendor(project.rpm_vendor)
-    rpmBuilder.setPackager(project.rpm_packager)
-    rpmBuilder.setUrl(project.rpm_url)
-   // If we are building the dell-bmc module, we need to install the ipmiflash rpm
-    if (moduleName == 'dell-bmc') {
-      rpmBuilder.addDependencyMore('dell-pec-ipmiflash','2013.02.11')
-    }
-    if (moduleName == 'dell-compellent') {
-      rpmBuilder.addDirectory("/opt/Dell/ASM/logs/compellent", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
-    }
-    if (moduleName == 'dell-equallogic') {
-      rpmBuilder.addDirectory("/var/lib/net-snmp/mib_indexes", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
-    }
-    println rpmBuilder.build(rpmDestinationDirectory)
 }
