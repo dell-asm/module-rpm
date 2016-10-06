@@ -76,11 +76,38 @@ class CompCuInfo {
         return valid
     }
 
-    def isGreaterThan(o) {
+    public boolean isGreaterThan(o) {
         if (o == null) {
             return true;
         }
-        return major >= o.major && minor >= o.minor && micro >= o.micro
+
+        // Check major
+        if (major > o.major) {
+            return true;
+        } else if (major < o.major) {
+            return false;
+        }
+
+        // Check minor
+        if (minor > o.minor) {
+            return true;
+        } else if (minor < o.minor) {
+            return false;
+        }
+
+        // / Check micro
+        if (micro > o.micro) {
+            return true;
+        } else if (micro < o.micro) {
+            return false;
+        }
+
+        // Same version
+        return false;
+    }
+
+    public String toString() {
+        return "CompCuInfo<${path}>"
     }
 }
 
