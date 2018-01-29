@@ -151,18 +151,18 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
             logger.debug("symbolic link = ${visitedFile.getPath()} -> ${linktarget}")
             rpmBuilder.addLink("${puppetModulesFolder}/${moduleFolder}/${element.path}", linktarget.toString())
         } else if (element.isDirectory()) {
-            rpmBuilder.addDirectory("${puppetModulesFolder}/${moduleFolder}/${element.path}", 0755, Directive.NONE, project.puppet_user, project.puppet_user)
+            rpmBuilder.addDirectory("${puppetModulesFolder}/${moduleFolder}/${element.path}", 0755, Directive.NONE, project.puppet_user, project.puppet_user, false)
         } else if('files/pool' == element.path || 'files/volume' == element.path ){
-            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0755 , Directive.NONE, project.puppet_user,project.puppet_user)
+            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}",element.file, 0755 , Directive.NONE, project.puppet_user,project.puppet_user, false)
         } else if (null != visitedFile.getParentFile() && 'bin' == visitedFile.getParentFile().getName()) {
-            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}", element.file, 0755, Directive.NONE, project.puppet_user, project.puppet_user)
+            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}", element.file, 0755, Directive.NONE, project.puppet_user, project.puppet_user, false)
         } else {
             def info = new CompCuInfo(element.path)
             if (info.isCompCuJar() && info.isGreaterThan(compCuInfo)) {
                 compCuInfo = info
             }
 
-            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}", element.file, 0644, Directive.NONE, project.puppet_user, project.puppet_user)
+            rpmBuilder.addFile("${puppetModulesFolder}/${moduleFolder}/${element.path}", element.file, 0644, Directive.NONE, project.puppet_user, project.puppet_user, false)
         }
     }
 
@@ -187,10 +187,10 @@ def buildModuleRpm(moduleName,moduleVersion,puppetModulesFolder='/etc/puppetlabs
         rpmBuilder.addDependencyMore('dell-pec-ipmiflash','2013.02.11')
     }
     if (moduleName == 'dell-compellent') {
-        rpmBuilder.addDirectory("/opt/Dell/ASM/logs/compellent", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
+        rpmBuilder.addDirectory("/opt/Dell/ASM/logs/compellent", 0775, Directive.NONE, project.puppet_user, project.puppet_user, false)
     }
     if (moduleName == 'dell-equallogic') {
-        rpmBuilder.addDirectory("/var/lib/net-snmp/mib_indexes", 0775, Directive.NONE, project.puppet_user, project.puppet_user)
+        rpmBuilder.addDirectory("/var/lib/net-snmp/mib_indexes", 0775, Directive.NONE, project.puppet_user, project.puppet_user, false)
     }
     println rpmBuilder.build(rpmDestinationDirectory)
 }
