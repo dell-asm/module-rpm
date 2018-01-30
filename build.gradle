@@ -16,7 +16,7 @@ buildscript {
         PLUGINS_REPO_URL = hasProperty('PLUGINS_REPO_URL') ? PLUGINS_REPO_URL : "${BASE_REPO_URL}/${PLUGINS_REPO}"
         USE_LOCAL_REPO = hasProperty('USE_LOCAL_REPO') ? USE_LOCAL_REPO       : 'false'
         rpm_packageName = env.RPM_PACKAGENAME ? env.RPM_PACKAGENAME : 'Dell-ASM-puppet-module-'
-        puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'puppet'
+        puppet_user = env.PUPPET_USER ? env.PUPPET_USER : 'root'
         moduleName = env.MODULE_NAME ? env.MODULE_NAME : 'puppetlabs-xinetd'
         moduleFolder = env.MODULE_FOLDER ? env.MODULE_FOLDER : 'xinetd'
         gitFolder = env.GIT_FOLDER ? env.GIT_FOLDER : moduleName
